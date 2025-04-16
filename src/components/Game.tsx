@@ -36,6 +36,9 @@ class MainScene extends Phaser.Scene {
   private winMessage!: Phaser.GameObjects.Text;
   private teethRequired: number = 0;
 
+  // Add click sound property
+  private clickSound!: Phaser.Sound.BaseSound;
+
   constructor() {
     super({ key: "MainScene" });
   }
@@ -68,12 +71,17 @@ class MainScene extends Phaser.Scene {
 
     // Load portal sound
     this.load.audio("portal", ASSETS.SOUNDS.PORTAL);
+
+    // Load click sound
+    this.load.audio("click", ASSETS.SOUNDS.CLICK);
   }
 
   /**
    * Create the initial game state
    */
   create(): void {
+    // Initialize click sound
+    this.clickSound = this.sound.add("click", { volume: 0.8 });
     this.setupGame();
   }
 
@@ -333,19 +341,27 @@ class MainScene extends Phaser.Scene {
         fontSize: UI_CONFIG.EXIT_DIALOG.fontSize,
         color: UI_CONFIG.EXIT_DIALOG.textColor,
       })
-      .setOrigin(0.5);
+      .setOrigin(0.5)
+      .setInteractive();
+
     const noButton = this.add
       .text(50, 50, MESSAGES.NO, {
         fontSize: UI_CONFIG.EXIT_DIALOG.fontSize,
         color: UI_CONFIG.EXIT_DIALOG.textColor,
       })
-      .setOrigin(0.5);
+      .setOrigin(0.5)
+      .setInteractive();
 
-    yesButton.setInteractive();
-    noButton.setInteractive();
+    // Add click handlers with sounds
+    yesButton.on("pointerdown", () => {
+      this.clickSound.play();
+      this.navigate("/");
+    });
 
-    yesButton.on("pointerdown", () => this.navigate("/"));
-    noButton.on("pointerdown", () => this.hideExitConfirm());
+    noButton.on("pointerdown", () => {
+      this.clickSound.play();
+      this.hideExitConfirm();
+    });
 
     this.exitConfirm.add([background, text, yesButton, noButton]);
     this.exitConfirm.setVisible(false);
@@ -577,6 +593,7 @@ class MainScene extends Phaser.Scene {
    */
   private showExitConfirm(): void {
     if (this.exitConfirm) {
+      this.clickSound.play(); // Play sound when showing exit prompt
       this.exitConfirm.setVisible(true);
     }
   }
@@ -663,6 +680,7 @@ class MainScene extends Phaser.Scene {
 
     // Add click handler
     returnButton.on("pointerdown", () => {
+      this.clickSound.play(); // Play sound when returning to title
       this.navigate("/");
     });
 

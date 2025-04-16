@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { ASSETS } from "../constants/game";
 import "./IntroSequence.css";
 
 const plotScreens = [
@@ -23,24 +24,73 @@ const plotScreens = [
 
 const IntroSequence: React.FC = () => {
   const [currentScreenIndex, setCurrentScreenIndex] = useState(0);
+  const [displayedText, setDisplayedText] = useState("");
+  const [isTyping, setIsTyping] = useState(true);
+  const clickSoundRef = useRef<HTMLAudioElement | null>(null);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    // Initialize click sound
+    clickSoundRef.current = new Audio(ASSETS.SOUNDS.CLICK);
+    if (clickSoundRef.current) {
+      clickSoundRef.current.volume = 0.8;
+    }
+  }, []);
+
+  useEffect(() => {
+    setIsTyping(true);
+    setDisplayedText("");
+    let currentText = "";
+    const text = plotScreens[currentScreenIndex].text;
+    let currentChar = 0;
+
+    const typingInterval = setInterval(() => {
+      if (currentChar < text.length) {
+        currentText += text[currentChar];
+        setDisplayedText(currentText);
+        currentChar++;
+      } else {
+        setIsTyping(false);
+        clearInterval(typingInterval);
+      }
+    }, 30);
+
+    return () => clearInterval(typingInterval);
+  }, [currentScreenIndex]);
+
   const handleNext = () => {
-    if (currentScreenIndex < plotScreens.length - 1) {
+    // Play click sound
+    if (clickSoundRef.current) {
+      clickSoundRef.current.currentTime = 0;
+      clickSoundRef.current.play();
+    }
+
+    if (isTyping) {
+      // When skipping, immediately go to next screen
+      if (currentScreenIndex < plotScreens.length - 1) {
+        setCurrentScreenIndex(currentScreenIndex + 1);
+      } else {
+        navigate("/game");
+      }
+    } else if (currentScreenIndex < plotScreens.length - 1) {
       setCurrentScreenIndex(currentScreenIndex + 1);
     } else {
       navigate("/game");
     }
   };
 
-  const currentScreen = plotScreens[currentScreenIndex];
-
   return (
     <div className="intro-sequence">
       <div className="intro-content">
-        <p className="intro-text">{currentScreen.text}</p>
-        <button className="intro-button" onClick={handleNext}>
-          {currentScreenIndex < plotScreens.length - 1
+        <p className="intro-text">{displayedText}</p>
+        <button
+          className="intro-button"
+          onClick={handleNext}
+          style={{ opacity: isTyping ? 0.7 : 1 }}
+        >
+          {isTyping
+            ? "Skip >>"
+            : currentScreenIndex < plotScreens.length - 1
             ? "Continue..."
             : "Let's Get Chewing!"}
         </button>

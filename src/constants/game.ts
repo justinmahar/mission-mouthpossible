@@ -139,6 +139,7 @@ export const ASSETS = {
       "/assets/complete-4.mp3",
     ],
     PORTAL: "/assets/portal.wav",
+    CLICK: "/assets/click.mp3",
   },
 } as const;
 
