@@ -435,26 +435,31 @@ class MainScene extends Phaser.Scene {
     const cursors = this.input?.keyboard?.createCursorKeys();
     if (!cursors) return;
 
+    // Calculate current movement speed based on total teeth
+    const currentSpeed =
+      GAME_CONFIG.BASE_MOVEMENT_SPEED +
+      this.totalTeeth * GAME_CONFIG.SPEED_INCREMENT_PER_TOOTH;
+
     // Handle horizontal movement (left/right or A/D)
     if (cursors.left.isDown || this.input?.keyboard?.addKey("A").isDown) {
-      this.lips.setVelocityX(-GAME_CONFIG.MOVEMENT_SPEED);
+      this.lips.setVelocityX(-currentSpeed);
     } else if (
       cursors.right.isDown ||
       this.input?.keyboard?.addKey("D").isDown
     ) {
-      this.lips.setVelocityX(GAME_CONFIG.MOVEMENT_SPEED);
+      this.lips.setVelocityX(currentSpeed);
     } else {
       this.lips.setVelocityX(0);
     }
 
     // Handle vertical movement (up/down or W/S)
     if (cursors.up.isDown || this.input?.keyboard?.addKey("W").isDown) {
-      this.lips.setVelocityY(-GAME_CONFIG.MOVEMENT_SPEED);
+      this.lips.setVelocityY(-currentSpeed);
     } else if (
       cursors.down.isDown ||
       this.input?.keyboard?.addKey("S").isDown
     ) {
-      this.lips.setVelocityY(GAME_CONFIG.MOVEMENT_SPEED);
+      this.lips.setVelocityY(currentSpeed);
     } else {
       this.lips.setVelocityY(0);
     }
