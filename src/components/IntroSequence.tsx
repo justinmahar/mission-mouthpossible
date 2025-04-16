@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ASSETS } from "../constants/game";
 import "./IntroSequence.css";
 
 const plotScreens = [
