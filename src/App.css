@@ -1,0 +1,17 @@
+/* Basic reset */
+body,
+html,
+#root,
+.App {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden; /* Prevent scrollbars */
+}
+
+.App {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

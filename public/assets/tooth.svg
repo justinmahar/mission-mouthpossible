@@ -1,0 +1,53 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- Crown of the tooth -->
+  <path d="
+    M8,4 
+    C8,4 6,6 6,8
+    C6,10 8,14 16,14
+    C24,14 26,10 26,8
+    C26,6 24,4 24,4
+    C24,4 20,2 16,2
+    C12,2 8,4 8,4
+    Z" 
+    fill="white" 
+    stroke="black" 
+    stroke-width="1.5"
+  />
+  <!-- Roots of the tooth -->
+  <path d="
+    M10,14
+    C10,14 8,16 8,20
+    C8,24 10,28 12,28
+    C14,28 14,24 14,24
+    L14,16
+    Z" 
+    fill="white" 
+    stroke="black" 
+    stroke-width="1.5"
+  />
+  <path d="
+    M22,14
+    C22,14 24,16 24,20
+    C24,24 22,28 20,28
+    C18,28 18,24 18,24
+    L18,16
+    Z" 
+    fill="white" 
+    stroke="black" 
+    stroke-width="1.5"
+  />
+  <!-- Middle root -->
+  <path d="
+    M14,14
+    L14,16
+    C14,16 16,20 16,24
+    C16,26 15,28 16,28
+    C17,28 16,26 16,24
+    C16,20 18,16 18,16
+    L18,14
+    Z" 
+    fill="white" 
+    stroke="black" 
+    stroke-width="1.5"
+  />
+</svg> 

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background white area for teeth -->
+  <path d="M90,160
+           L100,150
+           Q140,148 200,148
+           Q260,148 300,150
+           L310,160
+           L300,170
+           Q260,172 200,172
+           Q140,172 100,170
+           Z" 
+        fill="#fff" 
+        stroke="none"/>
+  
+  <!-- Tooth separators -->
+  <path d="M120,149 Q120,160 120,171" stroke="#000" stroke-width="1" fill="none"/>
+  <path d="M140,148.5 Q140,160 140,171.5" stroke="#000" stroke-width="1" fill="none"/>
+  <path d="M160,148.5 Q160,160 160,171.5" stroke="#000" stroke-width="1" fill="none"/>
+  <path d="M180,148 Q180,160 180,172" stroke="#000" stroke-width="1" fill="none"/>
+  <path d="M200,148 Q200,160 200,172" stroke="#000" stroke-width="1" fill="none"/>
+  <path d="M220,148 Q220,160 220,172" stroke="#000" stroke-width="1" fill="none"/>
+  <path d="M240,148.5 Q240,160 240,171.5" stroke="#000" stroke-width="1" fill="none"/>
+  <path d="M260,148.5 Q260,160 260,171.5" stroke="#000" stroke-width="1" fill="none"/>
+  <path d="M280,149 Q280,160 280,171" stroke="#000" stroke-width="1" fill="none"/>
+  
+  <!-- Upper lip with cupid's bow -->
+  <path d="M90,160
+           L100,150
+           Q140,130 180,130
+           L200,135
+           L220,130
+           Q260,130 300,150
+           L310,160
+           L300,150
+           Q260,148 200,148
+           Q140,148 100,150
+           Z" 
+        fill="#ff0000" 
+        stroke="#000" 
+        stroke-width="2"/>
+  
+  <!-- Lower lip -->
+  <path d="M90,160
+           L100,170
+           Q140,190 200,190
+           Q260,190 300,170
+           L310,160
+           L300,170
+           Q260,172 200,172
+           Q140,172 100,170
+           Z" 
+        fill="#ff0000" 
+        stroke="#000" 
+        stroke-width="2"/>
+</svg> 

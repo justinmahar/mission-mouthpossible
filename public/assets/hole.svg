@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Outer dark circle -->
+  <circle cx="50" cy="50" r="40" fill="#000000"/>
+  
+  <!-- Inner darker circle for depth -->
+  <circle cx="50" cy="50" r="30" fill="#111111"/>
+  
+  <!-- Even darker center -->
+  <circle cx="50" cy="50" r="20" fill="#222222"/>
+  
+  <!-- Darkest center point -->
+  <circle cx="50" cy="50" r="10" fill="#333333"/>
+</svg> 
