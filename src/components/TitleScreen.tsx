@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { audioManager } from "../utils/audioManager";
 import { ASSETS } from "../constants/game";
@@ -6,6 +6,13 @@ import "./TitleScreen.css";
 
 const TitleScreen: React.FC = () => {
   const navigate = useNavigate();
+  const [hasWon, setHasWon] = useState(false);
+
+  useEffect(() => {
+    // Check if the game has been won before
+    const gameWon = localStorage.getItem("gameWon") === "true";
+    setHasWon(gameWon);
+  }, []);
 
   const handleStart = () => {
     audioManager.playMusic(ASSETS.MUSIC.TITLE);
@@ -15,7 +22,11 @@ const TitleScreen: React.FC = () => {
   return (
     <div className="title-screen">
       <div className="title-content">
-        <img src={ASSETS.LIPS} alt="Lips" className="title-lips" />
+        <img
+          src={hasWon ? ASSETS.WINNING_MOUTH : ASSETS.LIPS}
+          alt={hasWon ? "Winning Mouth" : "Lips"}
+          className="title-lips"
+        />
         <h1 className="game-title">Mission MouthPossible</h1>
         <p className="game-subtitle">Grab life by the tooth.</p>
         <button className="start-button" onClick={handleStart}>

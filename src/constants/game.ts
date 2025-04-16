@@ -10,8 +10,8 @@ export const GAME_CONFIG = {
   LIPS_START_POSITION: { x: 400, y: 300 },
   MOVEMENT_SPEED: 200,
   BACKGROUND_COLOR: "#8B0000",
-  HOLE_POSITION: { x: 700, y: 500 },
-  HOLE_MIN_DISTANCE: 100,
+  PORTAL_POSITION: { x: 700, y: 500 },
+  PORTAL_MIN_DISTANCE: 100,
 } as const;
 
 /**
@@ -19,12 +19,58 @@ export const GAME_CONFIG = {
  */
 export const UI_CONFIG = {
   TEXT: {
-    fontSize: "32px",
+    fontSize: "20px",
     color: "#fff",
+    fontFamily: "'Arial', sans-serif",
+    padding: { x: 8, y: 4 },
+    backgroundColor: "rgba(0, 0, 0, 0.3)",
+    borderRadius: 6,
+    shadow: {
+      offsetX: 2,
+      offsetY: 2,
+      color: "#000",
+      blur: 4,
+      stroke: true,
+      fill: true,
+    },
   },
   LEVEL_COMPLETE: {
-    fontSize: "48px",
+    fontSize: "64px",
     color: "#fff",
+    fontFamily: "'Arial Black', sans-serif",
+    fontStyle: "bold",
+    backgroundColor: "rgba(0, 0, 0, 0.4)",
+    padding: { x: 40, y: 20 },
+    borderRadius: 15,
+    shadow: {
+      offsetX: 3,
+      offsetY: 3,
+      color: "#000",
+      blur: 8,
+      fill: true,
+      stroke: true,
+    },
+    stroke: "#4CAF50",
+    strokeThickness: 2,
+  },
+  COMPLETION_MESSAGE: {
+    fontSize: "24px",
+    color: "#fff",
+    fontFamily: "'Courier New', monospace",
+    fontStyle: "italic",
+    backgroundColor: "rgba(76, 175, 80, 0.3)",
+    padding: { x: 20, y: 15 },
+    borderRadius: 10,
+    align: "center",
+    wordWrap: { width: 500 },
+    lineSpacing: 8,
+    shadow: {
+      offsetX: 2,
+      offsetY: 2,
+      color: "#000",
+      blur: 6,
+      fill: true,
+    },
   },
   BUTTON: {
     fontSize: "32px",
@@ -68,12 +114,30 @@ export const UI_CONFIG = {
 export const ASSETS = {
   LIPS: "/assets/lips.svg",
   TOOTH: "/assets/tooth.svg",
-  HOLE: "/assets/hole.svg",
+  PORTAL: "/assets/hole.svg",
   WINNING_MOUTH: "/assets/winning-mouth.svg",
   MUSIC: {
     TITLE: "/assets/Epicurean%20Stomp.mp3",
     GAME: "/assets/Heavy%20Wallet.mp3",
     WIN: "/assets/Taste%20The%20Sax.mp3",
+  },
+  SOUNDS: {
+    BITES: [
+      "/assets/bite-1.wav",
+      "/assets/bite-2.wav",
+      "/assets/bite-3.wav",
+      "/assets/bite-4.wav",
+      "/assets/bite-5.wav",
+      "/assets/bite-6.wav",
+      "/assets/bite-7.wav",
+    ],
+    COMPLETE: [
+      "/assets/complete-1.mp3",
+      "/assets/complete-2.mp3",
+      "/assets/complete-3.mp3",
+      "/assets/complete-4.mp3",
+    ],
+    PORTAL: "/assets/portal.wav",
   },
 } as const;
 

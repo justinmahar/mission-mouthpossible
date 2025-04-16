@@ -13,7 +13,7 @@ class MainScene extends Phaser.Scene {
   // Game objects
   private lips!: Phaser.Physics.Arcade.Sprite;
   private teeth!: Phaser.Physics.Arcade.Group;
-  private hole!: Phaser.Physics.Arcade.Sprite;
+  private portal!: Phaser.Physics.Arcade.Sprite;
   private levelObjects: any[] = [];
 
   // UI elements
@@ -53,8 +53,21 @@ class MainScene extends Phaser.Scene {
   preload(): void {
     this.load.image("lips", ASSETS.LIPS);
     this.load.image("tooth", ASSETS.TOOTH);
-    this.load.image("hole", ASSETS.HOLE);
+    this.load.image("portal", ASSETS.PORTAL);
     this.load.image("winning-mouth", ASSETS.WINNING_MOUTH);
+
+    // Load all bite sound effects
+    ASSETS.SOUNDS.BITES.forEach((bite, index) => {
+      this.load.audio(`bite${index + 1}`, bite);
+    });
+
+    // Load all completion sound effects
+    ASSETS.SOUNDS.COMPLETE.forEach((complete, index) => {
+      this.load.audio(`complete${index + 1}`, complete);
+    });
+
+    // Load portal sound
+    this.load.audio("portal", ASSETS.SOUNDS.PORTAL);
   }
 
   /**
@@ -72,7 +85,7 @@ class MainScene extends Phaser.Scene {
     this.setTeethRequired();
     this.createLips();
     this.createTeeth();
-    this.createHole();
+    this.createPortal();
     this.setupCollisions();
     this.createUI();
     this.createLevelCompleteUI();
@@ -122,16 +135,40 @@ class MainScene extends Phaser.Scene {
   }
 
   /**
-   * Create the hole sprite
+   * Create the portal sprite
    */
-  private createHole(): void {
-    this.hole = this.physics.add.sprite(
-      GAME_CONFIG.HOLE_POSITION.x,
-      GAME_CONFIG.HOLE_POSITION.y,
-      "hole"
+  private createPortal(): void {
+    this.portal = this.physics.add.sprite(
+      GAME_CONFIG.PORTAL_POSITION.x,
+      GAME_CONFIG.PORTAL_POSITION.y,
+      "portal"
     );
-    this.hole.setVisible(false);
-    this.addToLevelObjects(this.hole);
+    this.portal.setVisible(false);
+    this.portal.setTint(0x00ffff);
+
+    // Set up a circular/elliptical collision body
+    if (this.portal.body) {
+      const portalWidth = 60; // Adjust based on the visible portal size
+      const portalHeight = 40; // Slightly smaller for the perspective effect
+      this.portal.body.setSize(portalWidth, portalHeight);
+      this.portal.body.setOffset(
+        (this.portal.width - portalWidth) / 2,
+        (this.portal.height - portalHeight) / 2
+      );
+    }
+
+    this.addToLevelObjects(this.portal);
+
+    // Add pulsing animation
+    this.tweens.add({
+      targets: this.portal,
+      scale: { from: 0.8, to: 1.2 },
+      alpha: { from: 0.8, to: 1 },
+      duration: 1000,
+      yoyo: true,
+      repeat: -1,
+      ease: "Sine.easeInOut",
+    });
   }
 
   /**
@@ -151,15 +188,26 @@ class MainScene extends Phaser.Scene {
     this.teeth = this.physics.add.group();
     this.addToLevelObjects(this.teeth);
 
+    const TEXT_REGION = {
+      x: 0,
+      y: 0,
+      width: 200, // Safe width for text area
+      height: 100, // Safe height for text area
+    };
+
     for (let i = 0; i < this.teethRequired; i++) {
-      const x = Phaser.Math.Between(50, GAME_CONFIG.WIDTH - 50);
-      const y = Phaser.Math.Between(50, GAME_CONFIG.HEIGHT - 50);
+      let x, y;
+      do {
+        x = Phaser.Math.Between(50, GAME_CONFIG.WIDTH - 50);
+        y = Phaser.Math.Between(50, GAME_CONFIG.HEIGHT - 50);
+      } while (x < TEXT_REGION.width && y < TEXT_REGION.height);
+
       this.teeth.create(x, y, "tooth");
     }
   }
 
   /**
-   * Set up collision detection between lips and teeth
+   * Set up collision detection between lips and teeth/portal
    */
   private setupCollisions(): void {
     this.physics.add.overlap(
@@ -172,6 +220,13 @@ class MainScene extends Phaser.Scene {
         this.totalTeeth++;
         this.updateScoreText();
 
+        // Play a random bite sound
+        const randomBiteNumber = Phaser.Math.Between(
+          1,
+          ASSETS.SOUNDS.BITES.length
+        );
+        this.sound.play(`bite${randomBiteNumber}`);
+
         if (this.totalTeeth >= GAME_CONFIG.TOTAL_TEETH_TO_WIN) {
           this.winGame();
         } else if (this.score === this.teethRequired) {
@@ -182,11 +237,18 @@ class MainScene extends Phaser.Scene {
       this
     );
 
+    // Add debug visualization for development
+    // this.physics.world.createDebugGraphic();
+    // this.portal.body.debugShowBody = true;
+    // this.portal.body.debugShowVelocity = true;
+
     this.physics.add.overlap(
       this.lips,
-      this.hole,
+      this.portal,
       ((object1: any, object2: any) => {
         if (this.isLevelComplete) {
+          // Play portal sound at 80% volume
+          this.sound.play("portal", { volume: 0.8 });
           this.startNextLevel();
         }
       }) as Phaser.Types.Physics.Arcade.ArcadePhysicsCallback,
@@ -212,32 +274,20 @@ class MainScene extends Phaser.Scene {
     this.scoreText = this.add.text(
       16,
       16,
-      `Level Teeth: ${this.score}/${this.teethRequired}`,
-      UI_CONFIG.TEXT
+      `Level Teeth: ${this.score}/${this.teethRequired}\nTotal Teeth: ${this.totalTeeth}/${GAME_CONFIG.TOTAL_TEETH_TO_WIN}\nLevel: ${this.level}`,
+      {
+        ...UI_CONFIG.TEXT,
+        lineSpacing: 4,
+      }
     );
     this.addToLevelObjects(this.scoreText);
-
-    // Add total teeth text below the level teeth
-    const totalTeethText = this.add.text(
-      16,
-      50,
-      `Total Teeth: ${this.totalTeeth}`,
-      UI_CONFIG.TEXT
-    );
-    this.addToLevelObjects(totalTeethText);
   }
 
   /**
    * Create the level display text
    */
   private createLevelText(): void {
-    this.levelText = this.add.text(
-      16,
-      84,
-      `Level: ${this.level}`,
-      UI_CONFIG.TEXT
-    );
-    this.addToLevelObjects(this.levelText);
+    // This method is now empty as we've moved the level display into the score text
   }
 
   /**
@@ -319,14 +369,44 @@ class MainScene extends Phaser.Scene {
 
     // Create completion message
     const completionMessage = this.add
-      .text(GAME_CONFIG.WIDTH / 2, GAME_CONFIG.HEIGHT / 2 + 50, "", {
-        fontSize: "20px",
-        color: "#fff",
-        wordWrap: { width: GAME_CONFIG.WIDTH - 100 },
-        align: "center",
-      })
+      .text(
+        GAME_CONFIG.WIDTH / 2,
+        GAME_CONFIG.HEIGHT / 2 + 80,
+        "",
+        UI_CONFIG.COMPLETION_MESSAGE
+      )
       .setOrigin(0.5)
-      .setVisible(false);
+      .setVisible(false)
+      .setAlpha(0); // Start invisible for fade in
+
+    // Add a reveal animation when the message becomes visible
+    this.tweens
+      .add({
+        targets: completionMessage,
+        alpha: { from: 0, to: 1 },
+        y: {
+          from: GAME_CONFIG.HEIGHT / 2 + 100,
+          to: GAME_CONFIG.HEIGHT / 2 + 80,
+        },
+        duration: 800,
+        ease: "Power2",
+        onComplete: () => {
+          // Add a gentle floating animation
+          this.tweens.add({
+            targets: completionMessage,
+            y: "+=5",
+            duration: 1500,
+            yoyo: true,
+            repeat: -1,
+            ease: "Sine.inOut",
+          });
+        },
+      })
+      .pause(); // Pause initially, will play when message becomes visible
+
+    // Store the tween reference on the message object for later use
+    completionMessage.setData("revealTween", this.tweens.getTweens().pop());
+
     this.addToLevelObjects(completionMessage);
   }
 
@@ -384,8 +464,9 @@ class MainScene extends Phaser.Scene {
    * Update the score display
    */
   private updateScoreText(): void {
-    this.scoreText.setText(`Level Teeth: ${this.score}/${this.teethRequired}`);
-    this.levelText.setText(`Level: ${this.level}`);
+    this.scoreText.setText(
+      `Level Teeth: ${this.score}/${this.teethRequired}\nTotal Teeth: ${this.totalTeeth}/${GAME_CONFIG.TOTAL_TEETH_TO_WIN}\nLevel: ${this.level}`
+    );
   }
 
   /**
@@ -395,47 +476,60 @@ class MainScene extends Phaser.Scene {
     this.lips.setVelocity(0);
     this.levelCompleteText.setVisible(true);
 
-    // Show completion message
+    // Play a random completion sound
+    const randomCompleteNumber = Phaser.Math.Between(
+      1,
+      ASSETS.SOUNDS.COMPLETE.length
+    );
+    this.sound.play(`complete${randomCompleteNumber}`, { volume: 0.4 });
+
+    // Show completion message with animation
     const message = getCompletionMessage(this.level);
     const completionMessage = this.levelObjects.find(
       (obj) => obj instanceof Phaser.GameObjects.Text && !obj.visible
     ) as Phaser.GameObjects.Text;
+
     if (completionMessage) {
       completionMessage.setText(message);
       completionMessage.setVisible(true);
+      // Play the reveal animation
+      const revealTween = completionMessage.getData("revealTween");
+      if (revealTween) {
+        revealTween.restart();
+      }
     }
 
-    // Position the hole randomly, ensuring it's not too close to the edges or the lips
+    // Position the portal randomly, ensuring it's not too close to the edges or the lips
     let x: number, y: number;
     const MIN_DISTANCE_FROM_LIPS = 300; // Minimum distance from lips
     let attempts = 0;
     const MAX_ATTEMPTS = 20;
-    const BOTTOM_AREA_HEIGHT = 150; // Height of the bottom area where the hole can spawn
+    const BOTTOM_AREA_HEIGHT = 150; // Height of the bottom area where the portal can spawn
 
     // Get the current lips position
     const lipsX = this.lips.x;
     const lipsY = this.lips.y;
 
-    // Define safe zones (areas where the hole can spawn)
+    // Define safe zones (areas where the portal can spawn)
     const safeZones = [
       {
         x: {
-          min: GAME_CONFIG.HOLE_MIN_DISTANCE,
+          min: GAME_CONFIG.PORTAL_MIN_DISTANCE,
           max: lipsX - MIN_DISTANCE_FROM_LIPS,
         },
         y: {
           min: GAME_CONFIG.HEIGHT - BOTTOM_AREA_HEIGHT,
-          max: GAME_CONFIG.HEIGHT - GAME_CONFIG.HOLE_MIN_DISTANCE,
+          max: GAME_CONFIG.HEIGHT - GAME_CONFIG.PORTAL_MIN_DISTANCE,
         },
       },
       {
         x: {
           min: lipsX + MIN_DISTANCE_FROM_LIPS,
-          max: GAME_CONFIG.WIDTH - GAME_CONFIG.HOLE_MIN_DISTANCE,
+          max: GAME_CONFIG.WIDTH - GAME_CONFIG.PORTAL_MIN_DISTANCE,
         },
         y: {
           min: GAME_CONFIG.HEIGHT - BOTTOM_AREA_HEIGHT,
-          max: GAME_CONFIG.HEIGHT - GAME_CONFIG.HOLE_MIN_DISTANCE,
+          max: GAME_CONFIG.HEIGHT - GAME_CONFIG.PORTAL_MIN_DISTANCE,
         },
       },
     ];
@@ -452,20 +546,23 @@ class MainScene extends Phaser.Scene {
       attempts < MAX_ATTEMPTS
     );
 
-    // Ensure the hole stays within screen bounds
+    // Ensure the portal stays within screen bounds
     x = Phaser.Math.Clamp(
       x,
-      GAME_CONFIG.HOLE_MIN_DISTANCE,
-      GAME_CONFIG.WIDTH - GAME_CONFIG.HOLE_MIN_DISTANCE
+      GAME_CONFIG.PORTAL_MIN_DISTANCE,
+      GAME_CONFIG.WIDTH - GAME_CONFIG.PORTAL_MIN_DISTANCE
     );
     y = Phaser.Math.Clamp(
       y,
       GAME_CONFIG.HEIGHT - BOTTOM_AREA_HEIGHT,
-      GAME_CONFIG.HEIGHT - GAME_CONFIG.HOLE_MIN_DISTANCE
+      GAME_CONFIG.HEIGHT - GAME_CONFIG.PORTAL_MIN_DISTANCE
     );
 
-    this.hole.setPosition(x, y);
-    this.hole.setVisible(true);
+    this.portal.setPosition(x, y);
+    this.portal.setVisible(true);
+    this.portal.setScale(1); // Reset scale when making visible
+    this.portal.setAlpha(1); // Reset alpha when making visible
+    this.portal.setTint(0x00ffff); // Ensure bright cyan tint is applied
 
     this.isLevelComplete = true;
   }
@@ -495,6 +592,9 @@ class MainScene extends Phaser.Scene {
     this.isGameWon = true;
     this.lips.setVelocity(0);
     this.cleanupPreviousGame();
+
+    // Store win state
+    localStorage.setItem("gameWon", "true");
 
     // Play winning music
     audioManager.playMusic(ASSETS.MUSIC.WIN);
